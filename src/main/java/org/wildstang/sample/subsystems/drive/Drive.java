@@ -1,6 +1,5 @@
 package org.wildstang.sample.subsystems.drive;
 
-import com.kauailabs.navx.frc.AHRS;
 
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.inputs.Input;
@@ -8,19 +7,20 @@ import org.wildstang.framework.pid.PIDConstants;
 import org.wildstang.framework.subsystems.drive.PathFollowingDrive;
 import org.wildstang.hardware.roborio.inputs.WsAnalogInput;
 import org.wildstang.hardware.roborio.inputs.WsDigitalInput;
+import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
+import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
 import org.wildstang.hardware.roborio.outputs.WsSparkMax;
 import org.wildstang.sample.robot.WSInputs;
 import org.wildstang.sample.robot.WSOutputs;
 
-import edu.wpi.first.wpilibj.I2C;
 
 public class Drive extends PathFollowingDrive {
 
     public enum DriveState{ TELEOP, AUTO, BASELOCK;}
 
     private WsSparkMax left, right;
-    private WsAnalogInput throttleJoystick, headingJoystick;
-    private WsDigitalInput baseLock;
+    private WsJoystickAxis throttleJoystick, headingJoystick;
+    private WsJoystickButton baseLock;
     private DriveState state;
 
     private double heading;
@@ -28,7 +28,7 @@ public class Drive extends PathFollowingDrive {
     private DriveSignal signal;
 
     private WSDriveHelper helper = new WSDriveHelper();
-    private final AHRS gyro = new AHRS(I2C.Port.kOnboard);
+    // private final AHRS gyro = new AHRS(I2C.Port.kOnboard);
 
     @Override
     public void init() {
@@ -36,11 +36,11 @@ public class Drive extends PathFollowingDrive {
         right = (WsSparkMax) Core.getOutputManager().getOutput(WSOutputs.RIGHT_DRIVE);
         motorSetUp(left);
         motorSetUp(right);
-        throttleJoystick = (WsAnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_LEFT_JOYSTICK_Y);
+        throttleJoystick = (WsJoystickAxis) Core.getInputManager().getInput(WSInputs.DRIVER_LEFT_JOYSTICK_Y);
         throttleJoystick.addInputListener(this);
-        headingJoystick = (WsAnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_RIGHT_JOYSTICK_X);
+        headingJoystick = (WsJoystickAxis) Core.getInputManager().getInput(WSInputs.DRIVER_RIGHT_JOYSTICK_X);
         headingJoystick.addInputListener(this);
-        baseLock = (WsDigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_RIGHT_SHOULDER);
+        baseLock = (WsJoystickButton) Core.getInputManager().getInput(WSInputs.DRIVER_RIGHT_SHOULDER);
         baseLock.addInputListener(this);
         resetState();
     }
@@ -74,7 +74,7 @@ public class Drive extends PathFollowingDrive {
         throttle = 0.0;
         heading = 0.0;
         signal = new DriveSignal(0.0, 0.0);
-        gyro.reset();
+        // gyro.reset();
     }
 
     @Override
@@ -125,13 +125,13 @@ public class Drive extends PathFollowingDrive {
 
     @Override
     public void updatePathFollower(double[] trajectoryInfo) {
-        signal = helper.autoDrive(trajectoryInfo[5], trajectoryInfo[13], trajectoryInfo[8], trajectoryInfo[16], 
-            (left.getPosition()+right.getPosition())/2.0, gyro.getAngle());
-        drive(signal);
+        // signal = helper.autoDrive(trajectoryInfo[5], trajectoryInfo[13], trajectoryInfo[8], trajectoryInfo[16], 
+        //     (left.getPosition()+right.getPosition())/2.0, gyro.getAngle());
+        // drive(signal);
     }
 
     public void drive(DriveSignal commandSignal){
-        left.setSpeed(commandSignal.leftMotor);
+        left.setSpeed(-commandSignal.leftMotor);
         right.setSpeed(commandSignal.rightMotor);
     }
 
@@ -143,7 +143,7 @@ public class Drive extends PathFollowingDrive {
     }
 
     public void setGyro(double degrees){
-        gyro.reset();
-        gyro.setAngleAdjustment(degrees);
+        // gyro.reset();
+        // gyro.setAngleAdjustment(degrees);
     }
 }
